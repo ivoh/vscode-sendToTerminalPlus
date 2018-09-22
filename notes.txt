@@ -1,0 +1,13 @@
+
+
+* vscode.commands.executeCommand('workbench.action.terminal.runSelectedText', text);
+https://github.com/DonJayamanne/gitHistoryVSCode/issues/240
+cannot use as it is taking selected text by itself (ignores parameter)
+
+
+* --proposed-api activeTerminal 
+https://github.com/Microsoft/vscode/issues/52834#issuecomment-400250476
+https://github.com/DonJayamanne/gitHistoryVSCode/issues/240
+https://github.com/Microsoft/vscode/commit/ec4930a545950b8d6320accb03985722719bfb78
+https://github.com/Microsoft/vscode/issues/46192
+https://code.visualstudio.com/docs/editor/command-line#_working-with-extensions

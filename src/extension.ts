@@ -45,21 +45,20 @@ export function activate(context: vscode.ExtensionContext) {
         // vscode.window.showInformationMessage(`${text}`);
         console.log(`Terminal|${text}`)
 
-        // cannot use as it is taking selected text by itself (ignores parameter)
-        // https://github.com/Microsoft/vscode/blob/5867dc7ab51b60ce402144d236a9565a941d6e84/src/vs/workbench/parts/terminal/electron-browser/terminalActions.ts#L595
-        // vscode.commands.executeCommand('workbench.action.terminal.runSelectedText', text);
-
         // new funcitonality  --enable-proposed-api
         // https://github.com/Microsoft/vscode/issues/52834
         // There is no way to get active terminal in VSCode by now !!!!
         // https://github.com/Microsoft/vscode/issues/48434#issuecomment-393591023
-        let t = vscode.window.terminals
-        vscode.window.activeTerminal
-        // for(let t in vscode.window.terminals) {
-        //     let term = vscode.window.terminals[t]
-        //     term.
-        // }
-    
+        // let t = vscode.window.terminals
+        
+
+        // https://github.com/Microsoft/vscode/issues/52834#issuecomment-400250476
+        // https://github.com/DonJayamanne/gitHistoryVSCode/issues/240
+        let term = vscode.window.activeTerminal;
+        if (term && term !== undefined) {
+            term.show();
+            term.sendText(text);
+        }
     }
 
 
