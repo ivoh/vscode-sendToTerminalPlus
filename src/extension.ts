@@ -44,7 +44,6 @@ export function activate(context: vscode.ExtensionContext) {
     let activeTerm: vscode.Terminal | null = null;
 
     function sendTextToActiveTerminal(text: string) {
-        // vscode.window.showInformationMessage(`${text}`);
         console.log(`Terminal|${text}`)
 
 
@@ -76,12 +75,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     function sendToTerminal(lines: string[]) {
-        if (lines.length > 1) {
-            sendTextToActiveTerminal(":PASTE");
-        }
         for(let l in lines) {
             sendTextToActiveTerminal(lines[l]);
         }
+    }
+
+    function transformForREPL(lines: string[]) : string[] {
+        let result :string[] = [];
+        if (lines.length > 1) {
+            result.push(":paste");
+        }
+        for(let l in lines) {
+            result.push(lines[l]);
+        }
+        if (lines.length > 1) {
+            result.push("\u0004");
+        }
+        return result;
     }
 
     // The command has been defined in the package.json file
@@ -95,8 +105,9 @@ export function activate(context: vscode.ExtensionContext) {
         if (selection.length === 0) {
             return;
         }
+        let transformedSelection = transformForREPL(selection);
 
-        sendToTerminal(selection);
+        sendToTerminal(transformedSelection);
     });
 
     context.subscriptions.push(disposable);
