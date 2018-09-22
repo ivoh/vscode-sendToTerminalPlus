@@ -42,7 +42,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     function sendTextToActiveTerminal(text: string) {
-        vscode.window.showInformationMessage(`${text}`);
+        // vscode.window.showInformationMessage(`${text}`);
+        console.log(`Terminal|${text}`)
+        vscode.commands.executeCommand('workbench.action.terminal.runSelectedText', text);
     }
 
     function sendToTerminal(lines: string[]) {
@@ -50,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
             sendTextToActiveTerminal(":PASTE");
         }
         for(let l in lines) {
-            sendTextToActiveTerminal(l);
+            sendTextToActiveTerminal(lines[l]);
         }
     }
 
