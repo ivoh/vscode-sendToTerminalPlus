@@ -41,24 +41,37 @@ export function activate(context: vscode.ExtensionContext) {
         return result;
     }
 
+    let activeTerm: vscode.Terminal | null = null;
+
     function sendTextToActiveTerminal(text: string) {
         // vscode.window.showInformationMessage(`${text}`);
         console.log(`Terminal|${text}`)
 
-        // new funcitonality  --enable-proposed-api
-        // https://github.com/Microsoft/vscode/issues/52834
-        // There is no way to get active terminal in VSCode by now !!!!
-        // https://github.com/Microsoft/vscode/issues/48434#issuecomment-393591023
-        // let t = vscode.window.terminals
-        
 
-        // https://github.com/Microsoft/vscode/issues/52834#issuecomment-400250476
-        // https://github.com/DonJayamanne/gitHistoryVSCode/issues/240
-        let term = vscode.window.activeTerminal;
-        if (term && term !== undefined) {
-            term.show();
-            term.sendText(text);
+        // * take last existing and remember (create new one if doesn't exist)
+        let t = vscode.window.terminals;
+        if (activeTerm !== null) {
+            if (t.indexOf(activeTerm) <0) {
+                activeTerm = null;
+            }
         }
+        if (activeTerm === null) {
+            if (t.length === 0) {
+                activeTerm = vscode.window.createTerminal("ScalaREPL");
+                activeTerm.show();
+            } else {
+                activeTerm = t[t.length-1];
+            }
+        }
+
+        // * take active
+        //  when the activeTerminal api starts to work
+        // let term = vscode.window.activeTerminal;
+        // if (term && term !== undefined) {
+        //     activeTerm = term
+        // }
+
+        activeTerm.sendText(text)
     }
 
 
