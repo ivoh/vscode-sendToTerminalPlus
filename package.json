@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "publisher": "ivoh",
     "engines": {
-        "vscode": "^1.27.0"
+         "vscode": "*"
     },
     "categories": [
         "Other"
@@ -29,6 +29,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
+    "enableProposedApi": true,
     "devDependencies": {
         "typescript": "^2.6.1",
         "vscode": "^1.1.21",
