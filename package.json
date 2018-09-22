@@ -10,6 +10,9 @@
     "categories": [
         "Other"
     ],
+    "keywords": [
+        "terminal", "scala", "repl", "console"
+    ],
     "activationEvents": [
         "onCommand:extension.sendToScalaREPL"
     ],
@@ -29,7 +32,6 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
-    "enableProposedApi": true,
     "devDependencies": {
         "typescript": "^2.6.1",
         "vscode": "^1.1.21",
