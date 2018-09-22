@@ -41,8 +41,17 @@ export function activate(context: vscode.ExtensionContext) {
         return result;
     }
 
-    function sendToTerminal(text: string) {
-        vscode.window.showInformationMessage(`Hello $() World!`);
+    function sendTextToActiveTerminal(text: string) {
+        vscode.window.showInformationMessage(`${text}`);
+    }
+
+    function sendToTerminal(lines: string[]) {
+        if (lines.length > 1) {
+            sendTextToActiveTerminal(":PASTE");
+        }
+        for(let l in lines) {
+            sendTextToActiveTerminal(l);
+        }
     }
 
     // The command has been defined in the package.json file
@@ -57,10 +66,13 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        // There is no way to get active terminal in VSCode by now !!!!
+        // https://github.com/Microsoft/vscode/issues/48434#issuecomment-393591023
+        // for(let t in vscode.window.terminals) {
+        //     let term = vscode.window.terminals[t]
+        // }
 
-        for (let item in selection) {
-            sendToTerminal(item);
-        }        
+        sendToTerminal(selection);
     });
 
     context.subscriptions.push(disposable);
