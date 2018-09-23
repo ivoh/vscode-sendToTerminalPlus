@@ -2,6 +2,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { Transform } from 'stream';
 
 class LanguageSetting {
     constructor() {
@@ -31,7 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
     const languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
 
     const defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
-    console.log(`Found '${languageSettings.length}' languages setting items.`);
+    console.log(`Found '${languageSettings.length}' language setting items.`);
+    const selectionPattern = "{selection}";
 
     function getLangSettings(langId: string) {
         return languageSettings.find(obj=> obj.langId === langId) || defaultLang
@@ -99,21 +101,38 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     function sendToTerminal(lines: string[]) {
-        for(let l in lines) {
-            sendTextToActiveTerminal(lines[l]);
+        for(let l of lines) {
+            sendTextToActiveTerminal(l);
         }
     }
 
-    function transformForREPL(lines: string[]) : string[] {
+    function replaceSelectionPatterns(msg: string, selection: string[]): string[] {
+        if (selection.length > 1) {
+            const i = msg.indexOf(selectionPattern);
+            if (i > 0) {
+                let result: string[] = [];
+                let selectionFirst = selection[0];
+                let selectionLast = selection[selection.length-1];
+                result.push(msg.substr(0, i) + selectionFirst);
+                for (let index = 0; index < selection.length-1; index++) {
+                    result.push(selection[index]);
+                }
+                result.push(selectionLast, msg.substr(i));
+            }
+            return [msg];            
+        } 
+        let selectionReplacement = "";
+        if (selection.length > 0) {
+            selectionReplacement = selection[0]
+        }        
+        return [msg.replace(selectionPattern, selectionReplacement)];
+    }
+
+    function transformForREPL(selection: string[], transformationMap: string[]) : string[] {
         let result :string[] = [];
-        if (lines.length > 1) {
-            result.push(":paste");
-        }
-        for(let l in lines) {
-            result.push(lines[l]);
-        }
-        if (lines.length > 1) {
-            result.push("\u0004");
+        for(let t of transformationMap) {
+            let transformed = replaceSelectionPatterns(t, selection)
+            result.concat(transformed)
         }
         return result;
     }
@@ -124,13 +143,13 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerTextEditorCommand('extension.sendToScalaREPL', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
 
-        // textEditor.document.languageId
+        let langSettings = getLangSettings(textEditor.document.languageId)
         // vscode.termin
         let selection = getSelectionText(textEditor)
         if (selection.length === 0) {
             return;
         }
-        let transformedSelection = transformForREPL(selection);
+        let transformedSelection = transformForREPL(selection, langSettings.payload);
 
         sendToTerminal(transformedSelection);
     });
