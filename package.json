@@ -49,14 +49,6 @@
                                     "type": "boolean",
                                     "description": "Send the selected text to terminal line by line"
                                 },
-                                "prefix": {
-                                    "type": ["string", null],
-                                    "description": ""
-                                },
-                                "suffix": {
-                                    "type": ["string", null],
-                                    "description": ""
-                                },
                                 "payload": {
                                      "type": "array",
                                      "description" : "",
@@ -70,15 +62,11 @@
                             {
                                 "langId": "default",
                                 "shouldBreakSelectionPerLines": false,
-                                "prefix": null,
-                                "postfix": null,
                                 "payload": ["{selection}"]
                             },
                             {
                                 "langId": "scala",
                                 "shouldBreakSelectionPerLines": true,
-                                "prefix": ":paste",
-                                "postfix": "\u0004",
                                 "payload": [":paste","{selection}", "\u0004"]
                             }
                         ]

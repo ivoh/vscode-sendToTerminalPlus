@@ -2,7 +2,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Transform } from 'stream';
 
 class LanguageSetting {
     constructor() {
@@ -36,56 +35,65 @@ export function activate(context: vscode.ExtensionContext) {
     const selectionPattern = "{selection}";
 
     function getLangSettings(langId: string) {
-        return languageSettings.find(obj=> obj.langId === langId) || defaultLang
+        return languageSettings.find(obj=> obj.langId === langId) || defaultLang;
     }
 
 
-    function getSelectionText(textEditor: vscode.TextEditor) : string[] {
+    function getSelectionText(textEditor: vscode.TextEditor, shouldBreakSelectionPerLines: Boolean) : string[] {
         let selection = textEditor.selection;       
+
+        // weird state
         if (!selection) {
             console.error(`No selection.`)
             return [];
         }
         
+        // select current line under cursor (as there i sno selection)
         if (selection.isEmpty) {
             console.log(`No selected text, therefore selecting current line.`)
-            return [textEditor.document.lineAt(selection.start.line).text];
+            return [textEditor.document.lineAt(selection.start.line).text];        
+        }
+        
+        // break per lines
+        if (shouldBreakSelectionPerLines) {
+            let result : string[] = [];
+            for (let line = selection.start.line; line <= selection.end.line; line++){
+                let currentLine = textEditor.document.lineAt(line).text;
+                if (line === selection.end.line) {
+                    currentLine = currentLine.substring(0, selection.end.character);
+                }
+                if (line === selection.start.line) {
+                    currentLine = currentLine.substring(selection.start.character);
+                }
+                result.push(currentLine);
+            }
+            console.debug(`Selected text is '${result.length}' lines.`);
+            return result;
         }
 
-        let result : string[] = [];
-        for (let line = selection.start.line; line <= selection.end.line; line++){
-            let currentLine = textEditor.document.lineAt(line).text;
-            if (line === selection.end.line) {
-                currentLine = currentLine.substring(0, selection.end.character)
-            }
-            if (line === selection.start.line) {
-                currentLine = currentLine.substring(selection.start.character)
-            }
-            result.push(currentLine);
-        }
-        console.log(`Selected text is '${result.length}' rows.`)
-        return result;
+        // as single line
+        return [textEditor.document.getText(selection)];
     }
 
     let activeTerm: vscode.Terminal | null = null;
 
     function sendTextToActiveTerminal(text: string) {
-        console.log(`Terminal|${text}`);
-
-
         // * take last existing and remember (create new one if doesn't exist)
         let t = vscode.window.terminals;
         if (activeTerm !== null) {
             if (t.indexOf(activeTerm) <0) {
+                console.log("Used terminal is no longer active. Therefore dropping reference.");
                 activeTerm = null;
             }
         }
         if (activeTerm === null) {
             if (t.length === 0) {
-                activeTerm = vscode.window.createTerminal("ScalaREPL");
+                console.log("Not referencing any terminal and no terminal is open. Therefore creating new terminal.");
+                activeTerm = vscode.window.createTerminal("Terminal+");
                 activeTerm.show();
             } else {
                 activeTerm = t[t.length-1];
+                console.log(`Not referencing any terminal. Taking last active. '${activate.name}'`);
             }
         }
 
@@ -96,7 +104,8 @@ export function activate(context: vscode.ExtensionContext) {
         //     activeTerm = term
         // }
 
-        activeTerm.sendText(text)
+        console.log(`Terminal|${text}`);
+        activeTerm.sendText(text);
     }
 
 
@@ -107,6 +116,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     function replaceSelectionPatterns(msg: string, selection: string[]): string[] {
+        // selection is multiline
         if (selection.length > 1) {
             const i = msg.indexOf(selectionPattern);
             if (i > 0) {
@@ -121,8 +131,12 @@ export function activate(context: vscode.ExtensionContext) {
             }
             return [msg];            
         } 
+
+        // selection is singleline
         let selectionReplacement = "";
+
         if (selection.length > 0) {
+            // selection is not empty
             selectionReplacement = selection[0]
         }        
         return [msg.replace(selectionPattern, selectionReplacement)];
@@ -131,9 +145,11 @@ export function activate(context: vscode.ExtensionContext) {
     function transformForREPL(selection: string[], transformationMap: string[]) : string[] {
         let result :string[] = [];
         for(let t of transformationMap) {
-            let transformed = replaceSelectionPatterns(t, selection)
-            result.concat(transformed)
+            // transformations goes here
+            let transformed = replaceSelectionPatterns(t, selection);
+            result.concat(transformed);
         }
+        console.debug(`Transformed text is '${result.length}' lines.`);
         return result;
     }
 
@@ -143,9 +159,9 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerTextEditorCommand('extension.sendToScalaREPL', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
 
-        let langSettings = getLangSettings(textEditor.document.languageId)
+        let langSettings = getLangSettings(textEditor.document.languageId);
         // vscode.termin
-        let selection = getSelectionText(textEditor)
+        let selection = getSelectionText(textEditor, langSettings.shouldBreakSelectionPerLines);
         if (selection.length === 0) {
             return;
         }
