@@ -3,7 +3,20 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-
+class LanguageSetting {
+    constructor() {
+        this.langId = "undefined";
+        this.shouldBreakSelectionPerLines = false;
+        this.prefix = null;
+        this.postfix = null;
+        this.payload = ["{selection}"];
+    }
+    langId: string;
+    shouldBreakSelectionPerLines: Boolean;
+    prefix: string | null;
+    postfix: string | null;
+    payload: string[];
+}
 
 
 // this method is called when your extension is activated
@@ -13,6 +26,17 @@ export function activate(context: vscode.ExtensionContext) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Extension "sendtoscalarepl" is now active!');
+
+    const extConfiguration = vscode.workspace.getConfiguration("sendtoscalarepl");
+    const languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
+
+    const defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
+    console.log(`Found '${languageSettings.length}' languages setting items.`);
+
+    function getLangSettings(langId: string) {
+        return languageSettings.find(obj=> obj.langId === langId) || defaultLang
+    }
+
 
     function getSelectionText(textEditor: vscode.TextEditor) : string[] {
         let selection = textEditor.selection;       
@@ -100,6 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerTextEditorCommand('extension.sendToScalaREPL', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
 
+        // textEditor.document.languageId
         // vscode.termin
         let selection = getSelectionText(textEditor)
         if (selection.length === 0) {

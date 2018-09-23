@@ -30,6 +30,61 @@
                 "key": "alt+enter",
                 "when": "editorFocus && !findWidgetVisible && editorLangId == 'scala'"
             }
+        ],
+        "configuration": [
+            {
+                "title": "Send To Scala Repl",
+                "properties": {
+                    "sendtoscalarepl.languages" : {
+                        "type": "array",
+                        "description": "Setting for languages",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "langId" : {
+                                    "type": "string",
+                                    "description": "Id of languages (e.g. 'scala', 'fsharp', etc...). Use 'default' for the rest."
+                                },
+                                "shouldBreakSelectionPerLines": {
+                                    "type": "boolean",
+                                    "description": "Send the selected text to terminal line by line"
+                                },
+                                "prefix": {
+                                    "type": ["string", null],
+                                    "description": ""
+                                },
+                                "suffix": {
+                                    "type": ["string", null],
+                                    "description": ""
+                                },
+                                "payload": {
+                                     "type": "array",
+                                     "description" : "",
+                                     "items": {
+                                         "type": "string"
+                                     }
+                                }
+                            }
+                        },
+                        "default": [
+                            {
+                                "langId": "default",
+                                "shouldBreakSelectionPerLines": false,
+                                "prefix": null,
+                                "postfix": null,
+                                "payload": ["{selection}"]
+                            },
+                            {
+                                "langId": "scala",
+                                "shouldBreakSelectionPerLines": true,
+                                "prefix": ":paste",
+                                "postfix": "\u0004",
+                                "payload": [":paste","{selection}", "\u0004"]
+                            }
+                        ]
+                    }
+                }
+            }
         ]
     },
     "scripts": {
