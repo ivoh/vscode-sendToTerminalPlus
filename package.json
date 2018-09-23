@@ -23,6 +23,13 @@
                 "command": "extension.sendToScalaREPL",
                 "title": "Send To Scala REPL"
             }
+        ],
+        "keybindings": [
+            {
+                "command": "extension.sendToScalaREPL",
+                "key": "alt+enter",
+                "when": "editorFocus && !findWidgetVisible && editorLangId == 'scala'"
+            }
         ]
     },
     "scripts": {

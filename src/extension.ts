@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (line === selection.start.line) {
                 currentLine = currentLine.substring(selection.start.character)
             }
-            result.push(currentLine)
+            result.push(currentLine);
         }
         console.log(`Selected text is '${result.length}' rows.`)
         return result;
@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     let activeTerm: vscode.Terminal | null = null;
 
     function sendTextToActiveTerminal(text: string) {
-        console.log(`Terminal|${text}`)
+        console.log(`Terminal|${text}`);
 
 
         // * take last existing and remember (create new one if doesn't exist)
