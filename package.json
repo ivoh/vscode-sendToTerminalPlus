@@ -43,22 +43,22 @@
                             "properties": {
                                 "langId" : {
                                     "type": "string",
-                                    "description": "Id of languages (e.g. 'scala', 'fsharp', etc...). Use 'default' for the rest."
+                                    "description": "Id of language (e.g. 'scala', 'fsharp', etc...) of the current document. Use 'default' for the rest."
                                 },
-                                "shouldBreakSelectionPerLines": {
+                                "shouldSendSelectionPerLines": {
                                     "type": "boolean",
                                     "description": "Send the selected text to terminal line by line"
                                 },
-                                "oneLineText": {
+                                "oneLineSelectionPayload": {
                                      "type": "array",
-                                     "description" : "",
+                                     "description" : "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection.",
                                      "items": {
                                          "type": "string"
                                      }
                                 },
-                                "multiLineText": {
+                                "multiLineSelectionPayload": {
                                      "type": "array",
-                                     "description" : "",
+                                     "description" : "Predefined lines send if the selection is block of lines. Can use replacement patterns. {selection} is used for block selection. Can be multiline even if shouldSendSelectionPerLines.",
                                      "items": {
                                          "type": "string"
                                      }
@@ -68,15 +68,15 @@
                         "default": [
                             {
                                 "langId": "default",
-                                "shouldBreakSelectionPerLines": false,
-                                "oneLineText": ["{selection}"],
-                                "multiLineText": ["{selection}"]
+                                "shouldSendSelectionPerLines": false,
+                                "oneLineSelectionPayload": ["{selection}"],
+                                "multiLineSelectionPayload": ["{selection}"]
                             },
                             {
                                 "langId": "scala",
-                                "shouldBreakSelectionPerLines": true,
-                                "oneLineText": ["{selection}"],
-                                "multiLineText": [":paste","{selection}", "\u0004"]
+                                "shouldSendSelectionPerLines": true,
+                                "oneLineSelectionPayload": ["{selection}"],
+                                "multiLineSelectionPayload": [":paste","{selection}", "\u0004"]
                             }
                         ]
                     }

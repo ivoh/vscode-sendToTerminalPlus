@@ -5,19 +5,15 @@ import * as vscode from 'vscode';
 
 class LanguageSetting {
     langId: string;
-    shouldBreakSelectionPerLines: Boolean;
-    prefix: string | null;
-    postfix: string | null;
-    oneLineText: string[];
-    multiLineText: string[];
+    shouldSendSelectionPerLines: Boolean;
+    oneLineSelectionPayload: string[];
+    multiLineSelectionPayload: string[];
 
     constructor() {
         this.langId = "undefined";
-        this.shouldBreakSelectionPerLines = false;
-        this.prefix = null;
-        this.postfix = null;
-        this.oneLineText = ["{selection}"];
-        this.multiLineText = ["{selection}"];
+        this.shouldSendSelectionPerLines = false;
+        this.oneLineSelectionPayload = ["{selection}"];
+        this.multiLineSelectionPayload = ["{selection}"];
     }
 }
 
@@ -27,6 +23,9 @@ class UserSelection {
 
     constructor(text: string[], isMultiLine: Boolean) {
         this.text = text;
+        if (this.text.length > 0 && this.text[this.text.length-1].length === 0) {
+            this.text.splice(this.text.length-1, 1);
+        }
         this.isMultiLine = isMultiLine;
     }
 
@@ -142,12 +141,13 @@ export function activate(context: vscode.ExtensionContext) {
                 let selectionFirst = selection[0];
                 let selectionLast = selection[selection.length-1];
                 result.push(msg.substr(0, i) + selectionFirst);
-                for (let index = 0; index < selection.length-1; index++) {
+                for (let index = 1; index < selection.length-1; index++) {
                     result.push(selection[index]);
                 }
-                result.push(selectionLast, msg.substr(i));
+                result.push(selectionLast + msg.substr(i + selectionPattern.length));
+                return result;
             }
-            return [msg];            
+            return [msg];
         } 
 
         // selection is singleline
@@ -192,7 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Using language setting for '${langSettings.langId}'`);
 
         // vscode.termin
-        let selection = getSelectionText(textEditor, langSettings.shouldBreakSelectionPerLines);
+        let selection = getSelectionText(textEditor, langSettings.shouldSendSelectionPerLines);
         if (selection.isEmpty()) {
             console.debug("There is no selection to process.");
             return;
@@ -200,7 +200,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         console.log(`Selected text is multiLine:'${selection.isMultiLine}' and '${selection.text.length}' lines long.`);
 
-        let transformedSelection = transformForREPL(selection, langSettings.oneLineText, langSettings.multiLineText);
+        let transformedSelection = transformForREPL(selection, langSettings.oneLineSelectionPayload, langSettings.multiLineSelectionPayload);
 
         sendToTerminal(transformedSelection);
     });
