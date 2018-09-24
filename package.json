@@ -21,14 +21,14 @@
         "commands": [
             {
                 "command": "extension.sendToTerminalPlus",
-                "title": "Send To Scala REPL"
+                "title": "Send Customized Text To Terminal"
             }
         ],
         "keybindings": [
             {
                 "command": "extension.sendToTerminalPlus",
-                "key": "alt+enter",
-                "when": "editorFocus && !findWidgetVisible && editorLangId == 'scala'"
+                "key": "shift+alt+enter",
+                "when": "editorFocus && !findWidgetVisible"
             }
         ],
         "configuration": [

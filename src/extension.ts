@@ -44,13 +44,13 @@ export function activate(context: vscode.ExtensionContext) {
 
         // weird state
         if (!selection) {
-            console.error(`No selection.`)
+            console.error(`No selection.`);
             return [];
         }
         
         // select current line under cursor (as there i sno selection)
         if (selection.isEmpty) {
-            console.log(`No selected text, therefore selecting current line.`)
+            console.log(`No selected text, therefore selecting current line.`);
             return [textEditor.document.lineAt(selection.start.line).text];        
         }
         
@@ -137,7 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (selection.length > 0) {
             // selection is not empty
-            selectionReplacement = selection[0]
+            selectionReplacement = selection[0];
         }        
         return [msg.replace(selectionPattern, selectionReplacement)];
     }
@@ -160,6 +160,8 @@ export function activate(context: vscode.ExtensionContext) {
         // The code you place here will be executed every time your command is executed
 
         let langSettings = getLangSettings(textEditor.document.languageId);
+        console.log(`Using language setting for '${langSettings.langId}'`);
+
         // vscode.termin
         let selection = getSelectionText(textEditor, langSettings.shouldBreakSelectionPerLines);
         if (selection.length === 0) {
