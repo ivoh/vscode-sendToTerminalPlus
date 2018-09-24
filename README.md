@@ -1,4 +1,4 @@
-# sendtoscalarepl README
+# sendToTerminalPlus README
 
 This is the README for your extension "sendToTerminalPlus". After writing up a brief description, we recommend including the following sections.
 

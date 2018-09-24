@@ -4,20 +4,36 @@
 import * as vscode from 'vscode';
 
 class LanguageSetting {
+    langId: string;
+    shouldBreakSelectionPerLines: Boolean;
+    prefix: string | null;
+    postfix: string | null;
+    oneLineText: string[];
+    multiLineText: string[];
+
     constructor() {
         this.langId = "undefined";
         this.shouldBreakSelectionPerLines = false;
         this.prefix = null;
         this.postfix = null;
-        this.payload = ["{selection}"];
+        this.oneLineText = ["{selection}"];
+        this.multiLineText = ["{selection}"];
     }
-    langId: string;
-    shouldBreakSelectionPerLines: Boolean;
-    prefix: string | null;
-    postfix: string | null;
-    payload: string[];
 }
 
+class UserSelection {
+    text: string[];
+    isMultiLine: Boolean;
+
+    constructor(text: string[], isMultiLine: Boolean) {
+        this.text = text;
+        this.isMultiLine = isMultiLine;
+    }
+
+    isEmpty() {
+        return this.text.length === 0;
+    }
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -39,21 +55,23 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
 
-    function getSelectionText(textEditor: vscode.TextEditor, shouldBreakSelectionPerLines: Boolean) : string[] {
+    function getSelectionText(textEditor: vscode.TextEditor, shouldBreakSelectionPerLines: Boolean) : UserSelection {
         let selection = textEditor.selection;       
 
         // weird state
         if (!selection) {
-            console.error(`No selection.`);
-            return [];
+            console.error(`No selection. Unexpected state.`);
+            return new UserSelection([], false);
         }
         
         // select current line under cursor (as there i sno selection)
         if (selection.isEmpty) {
             console.log(`No selected text, therefore selecting current line.`);
-            return [textEditor.document.lineAt(selection.start.line).text];        
+            return new UserSelection([textEditor.document.lineAt(selection.start.line).text], false);
         }
         
+        let isMultiLine = selection.end.line !== selection.start.line;
+
         // break per lines
         if (shouldBreakSelectionPerLines) {
             let result : string[] = [];
@@ -67,12 +85,11 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 result.push(currentLine);
             }
-            console.debug(`Selected text is '${result.length}' lines.`);
-            return result;
+            return new UserSelection(result, isMultiLine);
         }
 
         // as single line
-        return [textEditor.document.getText(selection)];
+        return new UserSelection([textEditor.document.getText(selection)], isMultiLine);
     }
 
     let activeTerm: vscode.Terminal | null = null;
@@ -110,6 +127,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     function sendToTerminal(lines: string[]) {
+        console.log(`Sending '${lines.length}' lines to terminal.`);
         for(let l of lines) {
             sendTextToActiveTerminal(l);
         }
@@ -119,7 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
         // selection is multiline
         if (selection.length > 1) {
             const i = msg.indexOf(selectionPattern);
-            if (i > 0) {
+            if (i >= 0) {
                 let result: string[] = [];
                 let selectionFirst = selection[0];
                 let selectionLast = selection[selection.length-1];
@@ -142,14 +160,25 @@ export function activate(context: vscode.ExtensionContext) {
         return [msg.replace(selectionPattern, selectionReplacement)];
     }
 
-    function transformForREPL(selection: string[], transformationMap: string[]) : string[] {
+    function transformForREPL(selection: UserSelection, oneLineText: string[], multiLineText: string[]) : string[] {
+        console.log(`Transforming '${selection.text.length}' input lines.`);
         let result :string[] = [];
-        for(let t of transformationMap) {
-            // transformations goes here
-            let transformed = replaceSelectionPatterns(t, selection);
-            result.concat(transformed);
+        let text : string[] = [];
+        if (!selection.isEmpty()) {
+            if (selection.isMultiLine) {
+                text = multiLineText;            
+            } else {
+                text = oneLineText; 
+            }
+            for(let t of text) {
+                // transformations goes here
+                let transformed = replaceSelectionPatterns(t, selection.text);
+
+
+                result = result.concat(transformed);
+            }
         }
-        console.debug(`Transformed text is '${result.length}' lines.`);
+        console.log(`Transformed text is '${result.length}' lines.`);
         return result;
     }
 
@@ -164,10 +193,14 @@ export function activate(context: vscode.ExtensionContext) {
 
         // vscode.termin
         let selection = getSelectionText(textEditor, langSettings.shouldBreakSelectionPerLines);
-        if (selection.length === 0) {
+        if (selection.isEmpty()) {
+            console.debug("There is no selection to process.");
             return;
         }
-        let transformedSelection = transformForREPL(selection, langSettings.payload);
+
+        console.log(`Selected text is multiLine:'${selection.isMultiLine}' and '${selection.text.length}' lines long.`);
+
+        let transformedSelection = transformForREPL(selection, langSettings.oneLineText, langSettings.multiLineText);
 
         sendToTerminal(transformedSelection);
     });

@@ -49,7 +49,14 @@
                                     "type": "boolean",
                                     "description": "Send the selected text to terminal line by line"
                                 },
-                                "payload": {
+                                "oneLineText": {
+                                     "type": "array",
+                                     "description" : "",
+                                     "items": {
+                                         "type": "string"
+                                     }
+                                },
+                                "multiLineText": {
                                      "type": "array",
                                      "description" : "",
                                      "items": {
@@ -62,12 +69,14 @@
                             {
                                 "langId": "default",
                                 "shouldBreakSelectionPerLines": false,
-                                "payload": ["{selection}"]
+                                "oneLineText": ["{selection}"],
+                                "multiLineText": ["{selection}"]
                             },
                             {
                                 "langId": "scala",
                                 "shouldBreakSelectionPerLines": true,
-                                "payload": [":paste","{selection}", "\u0004"]
+                                "oneLineText": ["{selection}"],
+                                "multiLineText": [":paste","{selection}", "\u0004"]
                             }
                         ]
                     }
