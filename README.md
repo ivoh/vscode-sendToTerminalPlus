@@ -31,9 +31,11 @@ Ctrl+D
 ![demo](images/sendToTerminalPlusScalaMultiLine.gif)
 
 
+If no selection is made then it sends current line.
+
 ## Shortcut
 ```
-Open file : alt+d
+Send selection : Alt + Shift + Enter
 ```
 
 
