@@ -2,16 +2,19 @@
     "name": "sendtoterminalplus",
     "displayName": "SendToTerminal+",
     "description": "Sends selected text to Terminal. Customizable support for multiline statements of languages REPLs (e.g. :paste/EOT in Scala).",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "publisher": "ivoh",
     "engines": {
-         "vscode": "^1.27.0"
+        "vscode": "^1.27.0"
     },
     "categories": [
         "Other"
     ],
     "keywords": [
-        "terminal", "scala", "repl", "console"
+        "terminal",
+        "scala",
+        "repl",
+        "console"
     ],
     "repository": {
         "type": "git",
@@ -39,13 +42,13 @@
             {
                 "title": "Send To Terminal Plus",
                 "properties": {
-                    "sendtoterminalplus.languages" : {
+                    "sendtoterminalplus.languages": {
                         "type": "array",
                         "description": "Setting for languages",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "langId" : {
+                                "langId": {
                                     "type": "string",
                                     "description": "Id of language (e.g. 'scala', 'fsharp', etc...) of the current document. Use 'default' for the rest."
                                 },
@@ -54,18 +57,18 @@
                                     "description": "Send the selected text to terminal line by line"
                                 },
                                 "oneLineSelectionPayload": {
-                                     "type": "array",
-                                     "description" : "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection.",
-                                     "items": {
-                                         "type": "string"
-                                     }
+                                    "type": "array",
+                                    "description": "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection.",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 },
                                 "multiLineSelectionPayload": {
-                                     "type": "array",
-                                     "description" : "Predefined lines send if the selection is block of lines. Can use replacement patterns. {selection} is used for block selection. Can be multiline even if shouldSendSelectionPerLines.",
-                                     "items": {
-                                         "type": "string"
-                                     }
+                                    "type": "array",
+                                    "description": "Predefined lines send if the selection is block of lines. Can use replacement patterns. {selection} is used for block selection. Can be multiline even if shouldSendSelectionPerLines.",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 }
                             }
                         },
@@ -73,14 +76,24 @@
                             {
                                 "langId": "default",
                                 "shouldSendSelectionPerLines": false,
-                                "oneLineSelectionPayload": ["{selection}"],
-                                "multiLineSelectionPayload": ["{selection}"]
+                                "oneLineSelectionPayload": [
+                                    "{selection}"
+                                ],
+                                "multiLineSelectionPayload": [
+                                    "{selection}"
+                                ]
                             },
                             {
                                 "langId": "scala",
                                 "shouldSendSelectionPerLines": true,
-                                "oneLineSelectionPayload": ["{selection}"],
-                                "multiLineSelectionPayload": [":paste","{selection}", "\u0004"]
+                                "oneLineSelectionPayload": [
+                                    "{selection}"
+                                ],
+                                "multiLineSelectionPayload": [
+                                    ":paste",
+                                    "{selection}",
+                                    "\u0004"
+                                ]
                             }
                         ]
                     }
