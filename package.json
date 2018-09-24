@@ -13,6 +13,10 @@
     "keywords": [
         "terminal", "scala", "repl", "console"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ivoh/vscode-sendToTerminalPlus"
+    },
     "activationEvents": [
         "onCommand:extension.sendToTerminalPlus"
     ],
@@ -33,7 +37,7 @@
         ],
         "configuration": [
             {
-                "title": "Send To Scala Repl",
+                "title": "Send To Terminal Plus",
                 "properties": {
                     "sendtoterminalplus.languages" : {
                         "type": "array",
