@@ -4,6 +4,7 @@
     "description": "Sends selected text to Terminal. Customizable support for multiline statements of languages REPLs (e.g. :paste/EOT in Scala).",
     "version": "0.1.1",
     "publisher": "ivoh",
+    "icon": "images/Terminalicon2.png",
     "engines": {
         "vscode": "^1.27.0"
     },
@@ -114,5 +115,6 @@
         "tslint": "^5.8.0",
         "@types/node": "^8.10.25",
         "@types/mocha": "^2.2.42"
-    }
+    },
+    "license": "LICENSE"
 }
