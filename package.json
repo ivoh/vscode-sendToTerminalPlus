@@ -1,7 +1,7 @@
 {
-    "name": "sendtoscalarepl",
-    "displayName": "SendToScalaREPL",
-    "description": "Sends selected text to Scala console with support of :paste mode when the text is multiline.",
+    "name": "sendtoterminalplus",
+    "displayName": "SendToTerminal+",
+    "description": "Sends selected text to Terminal. Customizable support for multiline statements of languages REPLs (e.g. :paste/EOT in Scala).",
     "version": "0.0.1",
     "publisher": "ivoh",
     "engines": {
@@ -14,19 +14,19 @@
         "terminal", "scala", "repl", "console"
     ],
     "activationEvents": [
-        "onCommand:extension.sendToScalaREPL"
+        "onCommand:extension.sendToTerminalPlus"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.sendToScalaREPL",
+                "command": "extension.sendToTerminalPlus",
                 "title": "Send To Scala REPL"
             }
         ],
         "keybindings": [
             {
-                "command": "extension.sendToScalaREPL",
+                "command": "extension.sendToTerminalPlus",
                 "key": "alt+enter",
                 "when": "editorFocus && !findWidgetVisible && editorLangId == 'scala'"
             }
@@ -35,7 +35,7 @@
             {
                 "title": "Send To Scala Repl",
                 "properties": {
-                    "sendtoscalarepl.languages" : {
+                    "sendtoterminalplus.languages" : {
                         "type": "array",
                         "description": "Setting for languages",
                         "items": {

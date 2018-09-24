@@ -25,9 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Extension "sendtoscalarepl" is now active!');
+    console.log('Extension "sendtoterminalplus" is now active!');
 
-    const extConfiguration = vscode.workspace.getConfiguration("sendtoscalarepl");
+    const extConfiguration = vscode.workspace.getConfiguration("sendtoterminalplus");
     const languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
 
     const defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
@@ -156,7 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerTextEditorCommand('extension.sendToScalaREPL', (textEditor: vscode.TextEditor) => {
+    let disposable = vscode.commands.registerTextEditorCommand('extension.sendToTerminalPlus', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
 
         let langSettings = getLangSettings(textEditor.document.languageId);
