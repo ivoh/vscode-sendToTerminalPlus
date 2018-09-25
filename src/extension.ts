@@ -6,18 +6,23 @@ import * as vscode from 'vscode';
 class LanguageSetting {
     langId: string;
     shouldSendSelectionPerLines: Boolean;
+    noSelectionPayload: string[];
     oneLineSelectionPayload: string[];
     multiLineSelectionPayload: string[];
 
     constructor() {
         this.langId = "undefined";
         this.shouldSendSelectionPerLines = false;
+        this.noSelectionPayload = ["{line}"];
         this.oneLineSelectionPayload = ["{selection}"];
         this.multiLineSelectionPayload = ["{selection}"];
     }
 }
 
 class UserSelection {
+    // selection: string[],
+    // line: string[],
+
     text: string[];
     isMultiLine: Boolean;
 
