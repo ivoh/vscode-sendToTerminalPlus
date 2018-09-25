@@ -57,6 +57,13 @@
                                     "type": "boolean",
                                     "description": "Send the selected text to terminal line by line"
                                 },
+                                "noSelectionPayload": {
+                                    "type": "array",
+                                    "description": "Predefined lines send if there is no text selected.",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
                                 "oneLineSelectionPayload": {
                                     "type": "array",
                                     "description": "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection.",
@@ -77,6 +84,9 @@
                             {
                                 "langId": "default",
                                 "shouldSendSelectionPerLines": false,
+                                "noSelectionPayload": [
+                                    "{line}"
+                                ],
                                 "oneLineSelectionPayload": [
                                     "{selection}"
                                 ],
@@ -87,6 +97,9 @@
                             {
                                 "langId": "scala",
                                 "shouldSendSelectionPerLines": true,
+                                "noSelectionPayload": [
+                                    "{line}"
+                                ],
                                 "oneLineSelectionPayload": [
                                     "{selection}"
                                 ],
@@ -95,7 +108,21 @@
                                     "{selection}",
                                     "\u0004"
                                 ]
-                            }
+                            },
+                            {
+                                "langId": "python",
+                                "shouldSendSelectionPerLines": true,
+                                "noSelectionPayload": [
+                                    "{line}"
+                                ],
+                                "oneLineSelectionPayload": [
+                                    "{selection}"
+                                ],
+                                "multiLineSelectionPayload": [
+                                    "{selection}", 
+                                    ""
+                                ]
+                            }                    
                         ]
                     }
                 }
