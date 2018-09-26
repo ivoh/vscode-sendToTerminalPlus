@@ -43,6 +43,11 @@
             {
                 "title": "Send To Terminal Plus",
                 "properties": {
+                    "sendtoterminalplus.dynamicconfiguration": {
+                        "type": "boolean",
+                        "description": "Should load configuration with each sending.",
+                        "default": true
+                    },
                     "sendtoterminalplus.languages": {
                         "type": "array",
                         "description": "Setting for languages",
@@ -84,6 +89,8 @@
                             {
                                 "langId": "default",
                                 "shouldSendSelectionPerLines": false,
+                                "multiLineSelectionPart": ["{selection}"],
+                                "multiLineSelectionPart2": ["t({selection});"],
                                 "noSelectionPayload": [
                                     "{line}"
                                 ],

@@ -47,11 +47,12 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Extension "sendtoterminalplus" is now active!');
 
+    let languageSettings:LanguageSetting[] = [];
+    let defaultLang = new LanguageSetting();
     const extConfiguration = vscode.workspace.getConfiguration("sendtoterminalplus");
-    const languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
+    const dynamicConfiguration = extConfiguration.get<Boolean>("dynamicconfiguration", false);
+    let configurationLoaded = false;
 
-    const defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
-    console.log(`Found '${languageSettings.length}' language setting items.`);
     const selectionPattern = "{selection}";
 
     function getLangSettings(langId: string) {
@@ -192,6 +193,14 @@ export function activate(context: vscode.ExtensionContext) {
     // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerTextEditorCommand('extension.sendToTerminalPlus', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
+
+        if (!dynamicConfiguration || !configurationLoaded) {
+            const extConfiguration = vscode.workspace.getConfiguration("sendtoterminalplus");
+            languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
+            defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
+            console.log(`Found '${languageSettings.length}' language setting items.`);
+        }
+    
 
         let langSettings = getLangSettings(textEditor.document.languageId);
         console.log(`Using language setting for '${langSettings.langId}'`);
