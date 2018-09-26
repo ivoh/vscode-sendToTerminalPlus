@@ -199,6 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
             languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
             defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
             console.log(`Found '${languageSettings.length}' language setting items.`);
+            configurationLoaded = true;
         }
     
 
