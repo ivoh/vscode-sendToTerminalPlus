@@ -46,7 +46,7 @@
                     "sendtoterminalplus.dynamicconfiguration": {
                         "type": "boolean",
                         "description": "Should load configuration with each sending.",
-                        "default": true
+                        "default": false
                     },
                     "sendtoterminalplus.languages": {
                         "type": "array",
