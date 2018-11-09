@@ -5,37 +5,64 @@ import * as vscode from 'vscode';
 
 class LanguageSetting {
     langId: string;
-    shouldSendSelectionPerLines: Boolean;
+    delayMode: string;
+    payloadFormat: string;
+    processLine: string;
     noSelectionPayload: string[];
     oneLineSelectionPayload: string[];
     multiLineSelectionPayload: string[];
 
     constructor() {
         this.langId = "undefined";
-        this.shouldSendSelectionPerLines = false;
-        this.noSelectionPayload = ["{line}"];
+        this.delayMode = "default";
+        this.payloadFormat = "default";
+        this.processLine = "{line}";
+        this.noSelectionPayload = ["{currentline}"];
         this.oneLineSelectionPayload = ["{selection}"];
         this.multiLineSelectionPayload = ["{selection}"];
     }
+
+
+    toString() {
+        return `langId:${this.langId}, delayMode:${this.delayMode}, payloadFormat:${this.payloadFormat}, processLine:${this.processLine}, `
+        + `noSelectionPayload:${this.noSelectionPayload}, oneLineSelectionPayload:${this.oneLineSelectionPayload}, multiLineSelectionPayload:${this.multiLineSelectionPayload}`;
+    }
+
+    setDefaultValues(defaultDelayMode: string, defaultPayloadFormat: string) : void {
+        this.delayMode = this.delayMode === "default" ? defaultDelayMode : this.delayMode;
+        this.payloadFormat = this.payloadFormat === "this.payloadFormat" ? defaultPayloadFormat : this.payloadFormat; 
+    }
+
 }
 
 class UserSelection {
     // selection: string[],
     // line: string[],
 
-    text: string[];
-    isMultiLine: Boolean;
+    currentline: string;
+    selection: string;
+    multilineSelection: string[];    
+    isMultiLine: boolean;
 
-    constructor(text: string[], isMultiLine: Boolean) {
-        this.text = text;
-        if (this.text.length > 0 && this.text[this.text.length-1].length === 0) {
-            this.text.splice(this.text.length-1, 1);
-        }
+    constructor(currentline: string, selection: string, multilineSelection : string[], isMultiLine: boolean) {
+        this.currentline = currentline;
+        this.selection = selection;
+        this.multilineSelection = multilineSelection;
         this.isMultiLine = isMultiLine;
+
+        this.removeTrailingLine(multilineSelection);
+    }
+
+    removeTrailingLine(text: string[]) {
+        // remove trailing space line
+        if (text.length > 0 && text[text.length-1].length === 0) {
+            text.splice(text.length-1, 1);
+        }
+
     }
 
     isEmpty() {
-        return this.text.length === 0;
+        return this.multilineSelection.length === 0;
     }
 }
 
@@ -47,8 +74,14 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Extension "sendtoterminalplus" is now active!');
 
-    let languageSettings:LanguageSetting[] = [];
-    let defaultLang = new LanguageSetting();
+    let defaultLanguageSettings: LanguageSetting = new LanguageSetting();
+    let languageSettings: LanguageSetting[] = [];
+    let messageDelay: number = 0;
+    let defaultDelayMode: string = "nodelay";
+    let chunkSize: number = 1000;    
+    let defaultPayloadFormat: string ="all";
+
+    let defaultLang = defaultLanguageSettings;
     const extConfiguration = vscode.workspace.getConfiguration("sendtoterminalplus");
     const dynamicConfiguration = extConfiguration.get<Boolean>("dynamicconfiguration", false);
     let configurationLoaded = false;
@@ -60,41 +93,44 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
 
-    function getSelectionText(textEditor: vscode.TextEditor, shouldBreakSelectionPerLines: Boolean) : UserSelection {
-        let selection = textEditor.selection;       
+    function getSelectionText(textEditor: vscode.TextEditor) : UserSelection {
+        const selection = textEditor.selection;       
 
         // weird state
         if (!selection) {
             console.error(`No selection. Unexpected state.`);
-            return new UserSelection([], false);
+            return new UserSelection("", "", [], false);
         }
         
-        // select current line under cursor (as there i sno selection)
+        // current line under cursor
+        const currentline = textEditor.document.lineAt(selection.start.line).text
+
         if (selection.isEmpty) {
-            console.log(`No selected text, therefore selecting current line.`);
-            return new UserSelection([textEditor.document.lineAt(selection.start.line).text], false);
+            console.log(`No selected text, therefore passing only current line.`);
+            return new UserSelection(currentline, "", [], false);
         }
-        
-        let isMultiLine = selection.end.line !== selection.start.line;
 
-        // break per lines
-        if (shouldBreakSelectionPerLines) {
-            let result : string[] = [];
-            for (let line = selection.start.line; line <= selection.end.line; line++){
-                let currentLine = textEditor.document.lineAt(line).text;
-                if (line === selection.end.line) {
-                    currentLine = currentLine.substring(0, selection.end.character);
-                }
-                if (line === selection.start.line) {
-                    currentLine = currentLine.substring(selection.start.character);
-                }
-                result.push(currentLine);
+        // is multiline
+        const isMultiLine = selection.end.line !== selection.start.line;
+
+        // multiline selection
+        let multilineSelection : string[] = [];
+        for (let line = selection.start.line; line <= selection.end.line; line++){
+            let currentLine = textEditor.document.lineAt(line).text;
+            if (line === selection.end.line) {
+                currentLine = currentLine.substring(0, selection.end.character);
             }
-            return new UserSelection(result, isMultiLine);
+            if (line === selection.start.line) {
+                currentLine = currentLine.substring(selection.start.character);
+            }
+            multilineSelection.push(currentLine);
         }
 
-        // as single line
-        return new UserSelection([textEditor.document.getText(selection)], isMultiLine);
+        // single line
+        const lineSelection = textEditor.document.getText(selection);
+
+
+        return new UserSelection(currentline, lineSelection, multilineSelection, isMultiLine);
     }
 
     let activeTerm: vscode.Terminal | null = null;
@@ -131,10 +167,28 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
 
-    function sendToTerminal(lines: string[]) {
-        console.log(`Sending '${lines.length}' lines to terminal.`);
-        for(let l of lines) {
-            sendTextToActiveTerminal(l);
+    function sendToTerminal(lines: string[], delay: number) {
+        console.log(`Sending '${lines.length}' lines to terminal with delay '${delay}'.`);
+
+        function sendOneByOneLineWithDelay() {
+            let lu = lines.shift();
+            if (lu === undefined) {
+                return;
+            }
+            let l = lu;
+            setTimeout(function() {
+                sendTextToActiveTerminal(l);
+                sendOneByOneLineWithDelay();
+            }, delay);        
+        }
+        
+        if (delay > 0) {
+            sendOneByOneLineWithDelay();
+        } else {
+            for(let l of lines) {
+                sendTextToActiveTerminal(l);
+            }
+
         }
     }
 
@@ -194,30 +248,44 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerTextEditorCommand('extension.sendToTerminalPlus', (textEditor: vscode.TextEditor) => {
         // The code you place here will be executed every time your command is executed
 
-        if (!dynamicConfiguration || !configurationLoaded) {
+
+        // dynamic settings
+        if (dynamicConfiguration || !configurationLoaded) {
             const extConfiguration = vscode.workspace.getConfiguration("sendtoterminalplus");
-            languageSettings = extConfiguration.get<LanguageSetting[]>("languages", []);
-            defaultLang = languageSettings.find(obj=> obj.langId === "default") || new LanguageSetting();
+            messageDelay = extConfiguration.get<number>("messageDelay", messageDelay);
+            defaultDelayMode = extConfiguration.get<string>("defaultDelayMode", defaultDelayMode);
+            chunkSize = extConfiguration.get<number>("chunkSize", chunkSize);
+            defaultPayloadFormat = extConfiguration.get<string>("defaultPayloadFormat", defaultPayloadFormat);
+            console.log(`Found common setting: messageDelay='${messageDelay}', defaultDelayMode='${defaultDelayMode}', chunkSize='${chunkSize}', defaultPayloadFormat='${defaultPayloadFormat}'.`);
+
+            languageSettings = extConfiguration.get<LanguageSetting[]>("languages", languageSettings);
+            for(let s of languageSettings) {
+                s.setDefaultValues(defaultDelayMode, defaultPayloadFormat);
+            }
+
+            defaultLang = languageSettings.find(obj=> obj.langId === "default") || defaultLang;
             console.log(`Found '${languageSettings.length}' language setting items.`);
             configurationLoaded = true;
         }
     
 
+        // pick correct language
         let langSettings = getLangSettings(textEditor.document.languageId);
-        console.log(`Using language setting for '${langSettings.langId}'`);
+        console.log(`Using language setting for '${langSettings.langId}'='${langSettings}'`);
 
-        // vscode.termin
-        let selection = getSelectionText(textEditor, langSettings.shouldSendSelectionPerLines);
-        if (selection.isEmpty()) {
-            console.debug("There is no selection to process.");
-            return;
-        }
+        // take selection
+        let selection = getSelectionText(textEditor);
+        console.log(`Selected text is empty:'${selection.isEmpty()}' multiLine:'${selection.isMultiLine}' and '${selection.multilineSelection.length}' lines long.`);
 
-        console.log(`Selected text is multiLine:'${selection.isMultiLine}' and '${selection.text.length}' lines long.`);
-
+        // transform as per language rules
         let transformedSelection = transformForREPL(selection, langSettings.oneLineSelectionPayload, langSettings.multiLineSelectionPayload);
 
-        sendToTerminal(transformedSelection);
+        // send to terminal
+        let sendDelay = 0;
+        if (langSettings.delayMode === "delayed") {
+            sendDelay = messageDelay;
+        }
+        sendToTerminal(transformedSelection, sendDelay);
     });
 
     context.subscriptions.push(disposable);

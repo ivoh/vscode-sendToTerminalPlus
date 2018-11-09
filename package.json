@@ -48,6 +48,35 @@
                         "description": "Should load configuration with each sending.",
                         "default": false
                     },
+                    "sendtoterminalplus.messageDelay": {
+                        "type": "integer",
+                        "description": "Delay between sending messages to terminal in ms (recommended 0 - none/local, e.g. 1500 - 1.5s/over the network).",
+                        "default": 1500 
+                    },
+                    "sendtoterminalplus.defaultDelayMode": {
+                        "type": "string",
+                        "enum": [
+                            "delayed",
+                            "nodelay"
+                        ],
+                        "description": "How should be the messages sent by default.",
+                        "default": "nodelay" 
+                    },
+                    "sendtoterminalplus.chunkSize": {
+                        "type": "integer",
+                        "description": "Max size of chunk that can be send together.",
+                        "default": 1100 
+                    },
+                    "sendtoterminalplus.defaultPayloadFormat": {
+                        "type": "string",
+                        "enum": [
+                            "line",
+                            "chunk",
+                            "all"
+                        ],
+                        "description": "How should be the selected text broken for sending to terminal.",
+                        "default": "all" 
+                    },
                     "sendtoterminalplus.languages": {
                         "type": "array",
                         "description": "Setting for languages",
@@ -58,27 +87,47 @@
                                     "type": "string",
                                     "description": "Id of language (e.g. 'scala', 'fsharp', etc...) of the current document. Use 'default' for the rest."
                                 },
-                                "shouldSendSelectionPerLines": {
-                                    "type": "boolean",
-                                    "description": "Send the selected text to terminal line by line"
+                                "delayMode": {
+                                    "type": "string",
+                                    "enum": [
+                                        "delayed",
+                                        "nodelay",
+                                        "default"
+                                    ],
+                                    "description": "How should be the messages sent.",
+                                },
+                                "payloadFormat" : {
+                                    "type": "string",
+                                    "enum": [
+                                        "line",
+                                        "chunk",
+                                        "all",
+                                        "default"
+                                    ],
+                                    "description": "How should be the selected text broken for sending to terminal."
+                                },
+                                "processLine" : {
+                                    "type": "string",
+                                    "description": "Decorate line with additional content. Replacement tag is {line}"
+                                    
                                 },
                                 "noSelectionPayload": {
                                     "type": "array",
-                                    "description": "Predefined lines send if there is no text selected.",
+                                    "description": "Predefined lines send if there is no text selected. Replacement tags are {selection}{currentline}",
                                     "items": {
                                         "type": "string"
                                     }
                                 },
                                 "oneLineSelectionPayload": {
                                     "type": "array",
-                                    "description": "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection.",
+                                    "description": "Predefined lines send if the selection is single line. Can use replacement patterns. {selection} is used for block selection. Replacement tag are {selection}{currentline}",
                                     "items": {
                                         "type": "string"
                                     }
                                 },
                                 "multiLineSelectionPayload": {
                                     "type": "array",
-                                    "description": "Predefined lines send if the selection is block of lines. Can use replacement patterns. {selection} is used for block selection. Can be multiline even if shouldSendSelectionPerLines.",
+                                    "description": "Predefined lines send if the selection is block of lines. Can use replacement patterns. {selection} is used for block selection. Can be multiline even if shouldSendSelectionPerLines. Replacement tag are {selection}{currentline}",
                                     "items": {
                                         "type": "string"
                                     }
@@ -88,15 +137,11 @@
                         "default": [
                             {
                                 "langId": "default",
-                                "shouldSendSelectionPerLines": false,
-                                "multiLineSelectionPart": [
-                                    "{selection}"
-                                ],
-                                "multiLineSelectionPart2": [
-                                    "t({selection});"
-                                ],
+                                "delayMode" : "default",
+                                "payloadFormat": "default",
+                                "processLine" : "{line}",
                                 "noSelectionPayload": [
-                                    "{line}"
+                                    "{currentline}"
                                 ],
                                 "oneLineSelectionPayload": [
                                     "{selection}"
@@ -107,9 +152,11 @@
                             },
                             {
                                 "langId": "scala",
-                                "shouldSendSelectionPerLines": true,
+                                "delayMode" : "default",
+                                "payloadFormat": "chunk",
+                                "processLine" : "{line}",
                                 "noSelectionPayload": [
-                                    "{line}"
+                                    "{currentline}"
                                 ],
                                 "oneLineSelectionPayload": [
                                     "{selection}"
@@ -122,9 +169,11 @@
                             },
                             {
                                 "langId": "python",
-                                "shouldSendSelectionPerLines": true,
+                                "delayMode" : "default",
+                                "payloadFormat": "chunk",
+                                "processLine" : "{line}",
                                 "noSelectionPayload": [
-                                    "{line}"
+                                    "{currentline}"
                                 ],
                                 "oneLineSelectionPayload": [
                                     "{selection}"
