@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {selectionPattern, currentLinePattern, linePattern, defaultOption, undefinedOption, DelayMode, PayloadFormat} from "./constants";
+import {selectionPatternTag, currentLinePatternTag, linePatternTag, defaultOption, undefinedOption, DelayMode, PayloadFormat} from "./constants";
 
 export class LanguageSetting {
     langId: string;
@@ -10,16 +10,18 @@ export class LanguageSetting {
     oneLineSelectionPayload: string[];
     multiLineSelectionPayload: string[];
     delayInMS : number;
+    chunkSize : number;
 
     constructor() {
         this.langId = undefinedOption;
         this.delayMode = defaultOption;
         this.payloadFormat = defaultOption;
-        this.linePattern = linePattern;
-        this.noSelectionPayload = [ currentLinePattern];
-        this.oneLineSelectionPayload = [selectionPattern];
-        this.multiLineSelectionPayload = [selectionPattern];
+        this.linePattern = linePatternTag;
+        this.noSelectionPayload = [ currentLinePatternTag];
+        this.oneLineSelectionPayload = [selectionPatternTag];
+        this.multiLineSelectionPayload = [selectionPatternTag];
         this.delayInMS = 0;
+        this.chunkSize = 100;
     }
 
 
@@ -28,9 +30,10 @@ export class LanguageSetting {
         + `noSelectionPayload:${this.noSelectionPayload}, oneLineSelectionPayload:${this.oneLineSelectionPayload}, multiLineSelectionPayload:${this.multiLineSelectionPayload}`;
     }
 
-    setDefaultValues(defaultDelayMode: string, defaultPayloadFormat: string, messageDelay: number) : void {
+    setDefaultValues(defaultDelayMode: string, defaultPayloadFormat: string, messageDelay: number, chunkSize: number) : void {
         this.delayMode = this.delayMode === defaultOption ? defaultDelayMode : this.delayMode;
         this.payloadFormat = this.payloadFormat === defaultOption ? defaultPayloadFormat : this.payloadFormat; 
+        this.chunkSize = chunkSize;
         if (this.delayMode === DelayMode.NoDelay ) {
             this.delayInMS = 0;
         } else {
@@ -65,7 +68,7 @@ function getLanguageSettings() : LanguageSetting[] {
 
         languageSettings = extConfiguration.get<LanguageSetting[]>("languages", languageSettings);
         for(let s of languageSettings) {
-            s.setDefaultValues(defaultDelayMode, defaultPayloadFormat, messageDelay);
+            s.setDefaultValues(defaultDelayMode, defaultPayloadFormat, messageDelay, chunkSize);
         }
 
         defaultLang = languageSettings.find(obj=> obj.langId === "default") || defaultLang;
@@ -82,12 +85,3 @@ export function getLangSettings(langId: string) {
     return languageSettings.find(obj=> obj.langId === langId) || defaultLang;
 }
 
-
-
-export function getSendDelay() {
-    let sendDelay = 0;
-    if (langSettings.delayMode === "delayed") {
-        sendDelay = messageDelay;
-    }
-    return sendDelay;
-}

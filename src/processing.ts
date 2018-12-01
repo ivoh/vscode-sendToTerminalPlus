@@ -1,33 +1,53 @@
-import {UserSelection} from "./selection";
 import {selectionPatternTag, linePatternTag, currentLinePatternTag, PayloadFormat, patternTagDelimiter} from "./constants";
    
-    function replacePattern(line: string, pattern: string, replacement: string[]) : string[] {
+    
+    function replacePattern(inputLine: string, patternTag: string, replacementLines: string[], position?: number) : [string[], number] {
+        let i = inputLine.lastIndexOf(patternTag, position);
+        if (i < 0) {
+            return [[inputLine], i];
+        }
+
+        let prefix = inputLine.substr(0, i);
+        let suffix = inputLine.substr(i + patternTag.length);        
+
         // replacement is multiline
-        if (replacement.length > 1) {
-            const i = line.indexOf(pattern);
-            if (i >= 0) {
-                let result: string[] = [];
-                let replacementFirstLine = replacement[0];
-                let replacementLastLine = replacement[replacement.length-1];
-                result.push(line.substr(0, i) + replacementFirstLine);
-                for (let index = 1; index < replacement.length-1; index++) {
-                    result.push(replacement[index]);
-                }
-                result.push(replacementLastLine + line.substr(i + pattern.length));
-                return result;
+        if (replacementLines.length > 1) {
+            let result: string[] = [];
+            let replacementFirstLine = replacementLines[0];
+            let replacementLastLine = replacementLines[replacementLines.length-1];
+            result.push(prefix + replacementFirstLine);
+            for (let index = 1; index < replacementLines.length-1; index++) {
+                result.push(replacementLines[index]);
             }
-            return [line];
+            result.push(replacementLastLine + suffix);
+            return [result, i];
         }
 
         // replacement is singleline
         let lineReplacement = "";
 
-        if (replacement.length > 0) {
+        if (replacementLines.length > 0) {
             // selection is not empty
-            lineReplacement = replacement[0];
+            lineReplacement = replacementLines[0];
         }        
-        return [line.replace(pattern, lineReplacement)];
+        return [[prefix +  lineReplacement + suffix], i];
     }
+    
+    /**
+     * Replaces all occurences of patternTag
+     * @param inputLine - input text line
+     * @param patternTag - tag to be replaced
+     * @param replacementLines - multiline content to replace the patternTag in inputLine
+     */
+    function replaceAllPatterns(inputLine: string, patternTag: string, replacementLines: string[]) : string[] {
+        let position : number | undefined = undefined;
+        let result : string[] = [inputLine];
+        do {
+            [result, position] = replacePattern(result[0], patternTag, replacementLines);
+        } while (position !== undefined && position > 0);
+        return result;
+    }
+    
 
     function extendPatternTag(patternTag: string) {
         return patternTagDelimiter + patternTag + patternTagDelimiter;
@@ -39,14 +59,25 @@ import {selectionPatternTag, linePatternTag, currentLinePatternTag, PayloadForma
 
     function extendPattern(patternTag: string, content: string[]) : [string, string[]] {
         let extendedTag =  extendPatternTag(patternTag);
-        return [extendedTag, mapReduce(content, l => replacePattern(l, patternTag, [extendedTag]))];
+        return [extendedTag, mapReduce(content, l => replaceAllPatterns(l, patternTag, [extendedTag]))];
     }
 
 
-    function processPatterns(selection: string[], currentLine: string, linePattern: string, noSelectionPayload: string[], oneLineSelectionPayload: string[], multilineSelectionPayload: string[]) : string[] {
+    /**
+     * Replaces patterns with values
+     * @param selection 
+     * @param currentLine 
+     * @param linePattern 
+     * @param noSelectionPayload 
+     * @param oneLineSelectionPayload 
+     * @param multilineSelectionPayload 
+     */
+    export function processPatterns(selection: string[], currentLine: string, linePattern: string, noSelectionPayload: string[], 
+        oneLineSelectionPayload: string[], multilineSelectionPayload: string[]) : string[] {
         console.log(`Transforming '${selection.length}' input lines.`);
+
         // transformations of replacement patterns
-        let processedSelection =  mapReduce   selection.map(l => replacePattern(linePattern, linePatternTag, [l])).reduce((acc, item) => acc.concat(item), []);            
+        let processedSelection =  mapReduce(selection, l => replaceAllPatterns(linePattern, linePatternTag, [l]));
         
         let payloadPattern: string[] = [];
         switch (selection.length) {
@@ -60,40 +91,49 @@ import {selectionPatternTag, linePatternTag, currentLinePatternTag, PayloadForma
                 payloadPattern = multilineSelectionPayload;
                 break;
         }
-        
-        [, payloadPattern] = extendPattern(currentLinePatternTag, payloadPattern);
 
-        let result :string[] = [];
-        let lines : string[] = [];        
-        payL =  mapReduce(payloadPattern, l => replacePattern(l, selectionPatternTag, selection));
-        //  payloadPattern.map(l => replacePattern(l, currentLinePatternTag, [currentLine])).reduce((acc, item) => acc.concat(item), []);
-        line = mapReduce(line, l => replacePattern(l, selectionPatternTag, selection))
-        // line = line.map(l => replacePattern(l, selectionPatternTag, selection)).reduce((acc, item) => acc.concat(item), []);
+        // extend pattern tags to lower likelyhood of containing tag in replacement content
+        let extendedCurrentLinePatternTag = currentLinePatternTag;
+        [extendedCurrentLinePatternTag, payloadPattern] = extendPattern(currentLinePatternTag, payloadPattern);
 
-        result = result.concat(line);
+        let extendedSelectionPatternTag = selectionPatternTag;
+        [extendedSelectionPatternTag, payloadPattern] = extendPattern(selectionPatternTag, payloadPattern);
+
+
+        let result :string[] = payloadPattern;
+        result =  mapReduce(result, l => replaceAllPatterns(l, extendedCurrentLinePatternTag, [currentLine]));
+        result =  mapReduce(result, l => replaceAllPatterns(l, extendedSelectionPatternTag, processedSelection));
 
         console.log(`Transformed text is '${result.length}' lines.`);
         return result;
     }
 
-    export function processSelection(userSelection: UserSelection,  noSelectionTemplate: string[], linePattern: string) : string[] {
-        let payload : string[] = [];
-        let selectionLines : string[] = [];
+    function breakDownStrinToSlices(line: string, sliceLength: number) {
+        let start = 0;
+        let result : string[] = [];
+        while (start < line.length) {
+            result.push(line.substr(start, start + sliceLength))
+            start += sliceLength;
+        } 
 
-        if (userSelection.isEmpty) {
-            selectionLines = noSelectionTemplate;
-        }  else {
-            selectionLines = userSelection.multilineSelection;
-        }
-
-        let lines = processPatterns(selectionLines,[],  userSelection.currentline, linePattern)
-
-        return lines;
+        return result;
     }
 
-
-    export function formatPayload(text: string[], payloadFormat: string) {
-        if (payloadFormat === PayloadFormat.)
+    export function brakDownToFormat(lines: string[], payloadFormat: string, chunkSize: number) : string[] {
+        switch (payloadFormat) {
+            case PayloadFormat.Chunk:
+                let asOneLine = lines.join("\n");
+                let asArray = breakDownStrinToSlices(asOneLine, chunkSize);
+                return asArray;            
+                break;
+            case PayloadFormat.Line:
+                return lines;
+                break;        
+            default:
+                return [lines.join("\n")];
+                break;
+        }        
     }
+
 
 

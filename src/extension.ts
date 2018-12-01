@@ -4,7 +4,7 @@
 import * as vscode from 'vscode';
 import {getLangSettings} from "./setting";
 import {getSelectionText} from "./selection";
-import {processSelection, transformForREPL} from './processing';
+import {processPatterns, breakDownToFormat} from './processing';
 import {sendToTerminal} from './sending';
 import { PayloadFormat } from './constants';
 
@@ -34,10 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Selected text is empty:'${selection.isEmpty()}' multiLine:'${selection.isMultiLine}' and '${selection.multilineSelection.length}' lines long.`);
 
         // process payload
-        let content = processSelection(selection, langSettings.noSelectionPayload, langSettings.linePattern, langSettings.payloadFormat);
+        let text = processPatterns(selection.multilineSelection,  selection.currentline, langSettings.linePattern,  langSettings.noSelectionPayload, 
+            langSettings.oneLineSelectionPayload, langSettings.multiLineSelectionPayload);
 
         // transform as per language rules
-        let transformedSelection = transformForREPL(selection, langSettings.oneLineSelectionPayload, langSettings.multiLineSelectionPayload);
+        let transformedSelection = breakDownToFormat(text, langSettings.payloadFormat, langSettings.chunkSize);
 
         // send to terminal
         let shouldAddNewLineCharAtTheEndOfEachLine = langSettings.payloadFormat !== PayloadFormat.Chunk;
