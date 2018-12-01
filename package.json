@@ -106,7 +106,7 @@
                                     ],
                                     "description": "How should be the selected text broken for sending to terminal."
                                 },
-                                "processLine" : {
+                                "linePattern" : {
                                     "type": "string",
                                     "description": "Decorate line with additional content. Replacement tag is {line}"
                                     
@@ -139,7 +139,7 @@
                                 "langId": "default",
                                 "delayMode" : "default",
                                 "payloadFormat": "default",
-                                "processLine" : "{line}",
+                                "linePattern" : "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
@@ -154,7 +154,7 @@
                                 "langId": "scala",
                                 "delayMode" : "default",
                                 "payloadFormat": "chunk",
-                                "processLine" : "{line}",
+                                "linePattern" : "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
@@ -171,7 +171,7 @@
                                 "langId": "python",
                                 "delayMode" : "default",
                                 "payloadFormat": "chunk",
-                                "processLine" : "{line}",
+                                "linePattern" : "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
