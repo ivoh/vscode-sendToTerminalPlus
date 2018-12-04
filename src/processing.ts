@@ -112,7 +112,7 @@ import {selectionPatternTag, linePatternTag, currentLinePatternTag, PayloadForma
         let start = 0;
         let result : string[] = [];
         while (start < line.length) {
-            result.push(line.substr(start, start + sliceLength));
+            result.push(line.substr(start, sliceLength));
             start += sliceLength;
         } 
 
