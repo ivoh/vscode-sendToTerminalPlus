@@ -118,11 +118,12 @@ There is `activeTerminal` API already implemented in the `--proposed-api` featur
 ## Release Notes
 
 ### 0.2.0
-Added delay, chunk payload format, line processing, noselection pattern.
+* Added delay, chunk payload format, line processing, noselection pattern.
+<!-- * Using `activeTerminal` API to send to currently active terminal to. -->
 
 ### 0.1.0
 
-Initial release.
+* Initial release.
 
 
 -----------------------------------------------------------------------------------------------------------
