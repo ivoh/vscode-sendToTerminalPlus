@@ -204,6 +204,7 @@
     },
     "license": "LICENSE",
     "dependencies": {
-        "class-transformer": "^0.2.0"
+        "class-transformer": "^0.2.0",
+        "event-stream": "^3.3.4"
     }
 }
