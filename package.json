@@ -2,7 +2,7 @@
     "name": "sendtoterminalplus",
     "displayName": "SendToTerminal+",
     "description": "Sends selected text to Terminal. Customizable support for multiline statements of languages REPLs (e.g. :paste/EOT in Scala).",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "ivoh",
     "icon": "images/Terminalicon2.png",
     "engines": {
