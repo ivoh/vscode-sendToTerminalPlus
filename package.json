@@ -6,7 +6,7 @@
     "publisher": "ivoh",
     "icon": "images/Terminalicon2.png",
     "engines": {
-        "vscode": "^1.27.0"
+        "vscode": "^1.29.0"
     },
     "categories": [
         "Other"

@@ -1,48 +1,22 @@
 import * as vscode from 'vscode';
 
-    let activeTermOrNull: vscode.Terminal | null = null;
-
     function getSendTextToActiveTerminalDelegate() {
-        // * take last existing and remember (create new one if doesn't exist)
-        let t = vscode.window.terminals;
-        if (activeTermOrNull !== null) {
-            if (t.indexOf(activeTermOrNull) <0) {
-                console.log("Used terminal is no longer active. Therefore dropping reference.");
-                activeTermOrNull = null;
-            }
-        }
+        // * take active
+        let activeTermOrNull = vscode.window.activeTerminal;
 
         // let activeTerm = activeTermOrNull |
-        if (activeTermOrNull === null) {
-            if (t.length === 0) {
-                console.log("Not referencing any terminal and no terminal is open. Therefore creating new terminal.");
-                activeTermOrNull = vscode.window.createTerminal("Terminal+");
-                activeTermOrNull.show();
-            } else {
-                activeTermOrNull = t[t.length-1];
-                console.log(`Not referencing any terminal. Taking last active. '${activeTermOrNull.name}'`);
-            }
-        }
-
-        
-        // * take active
-        //  when the activeTerminal api starts to work
-        // let term = vscode.window.activeTerminal;
-        // if (term && term !== undefined) {
-        //     activeTerm = term
-        // }
-        if (activeTermOrNull === null) {
-            //hack: because of this crapy language
-            return function(text: string, addNewLine: boolean) {};
-        }
-
+        if (activeTermOrNull === null || activeTermOrNull === undefined) {
+            console.log("Not referencing any terminal and no terminal is open. Therefore creating new terminal.");
+            activeTermOrNull = vscode.window.createTerminal("Terminal+");
+        }       
         let activeTerm = activeTermOrNull;
+        activeTerm.show();
+
         return ((text: string, addNewLine: boolean) => {
             console.log(`Terminal|${text}`);
             activeTerm.sendText(text);
         });
     }
-
 
     export function sendToTerminal(lines: string[], addNewLines: boolean, delay: number) {
         console.log(`Sending '${lines.length}' lines to terminal with delay '${delay}', addNewLines:'${addNewLines}'.`);

@@ -20,3 +20,6 @@ bsce publish patch
 REM install class-transformer
 npm install class-transformer --save
 
+REM update API
+REM update package.json > engines.vscode
+npm install

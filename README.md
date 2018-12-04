@@ -109,17 +109,15 @@ Replacement tags to be used in patterns are:
 * `{selection}` is all the selected text.
 * `{line}` is the text in line. For use in the `linePattern` only.
 
-## Known Issues
-
-There is no available vscode API for extensions to determine which terminal is active at this time. This extension therefore picks up the last opened terminal and remembers it so it sends each time the the payload to that terminal until the terminal is closed. In case there is no terminal opened it creates a new terminal which it uses for sending. 
-
-There is `activeTerminal` API already implemented in the `--proposed-api` feature set. The current workaround will be replaced as soon as the API becomes stable and will be included in the RTM.
 
 ## Release Notes
 
+### 1.0.0
+* Using `activeTerminal` API to send to currently active terminal to. Introduced in [October 2018 (version 1.29)](https://code.visualstudio.com/updates/v1_29#_extension-authoring) update.
+
 ### 0.2.0
 * Added delay, chunk payload format, line processing, noselection pattern.
-<!-- * Using `activeTerminal` API to send to currently active terminal to. -->
+
 
 ### 0.1.0
 
