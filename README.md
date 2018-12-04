@@ -47,7 +47,12 @@ Default setting:
     "sendtoterminalplus.languages": [
         {
             "langId": "default",
-            "shouldSendSelectionPerLines": false,
+            "delayMode": "default",
+            "payloadFormat": "default",
+            "linePattern": "{line}",
+            "noSelectionPayload": [
+                "{currentline}"
+            ],
             "oneLineSelectionPayload": [
                 "{selection}"
             ],
@@ -57,7 +62,12 @@ Default setting:
         },
         {
             "langId": "scala",
-            "shouldSendSelectionPerLines": true,
+            "delayMode": "default",
+            "payloadFormat": "chunk",
+            "linePattern": "{line}",
+            "noSelectionPayload": [
+                "{currentline}"
+            ],
             "oneLineSelectionPayload": [
                 "{selection}"
             ],
@@ -66,16 +76,38 @@ Default setting:
                 "{selection}",
                 "\u0004"
             ]
+        },
+        {
+            "langId": "python",
+            "delayMode": "default",
+            "payloadFormat": "chunk",
+            "linePattern": "{line}",
+            "noSelectionPayload": [
+                "{currentline}"
+            ],
+            "oneLineSelectionPayload": [
+                "{selection}"
+            ],
+            "multiLineSelectionPayload": [
+                "{selection}",
+                ""
+            ]
         }
     ]
 ```
 
-This can be customized per language basis. The language id `default` is used for all undefined languages. `{selection}` is a marker replaced with selected text.
+Behaviour can be customized per language basis. The language id `default` is used for all undefined languages. 
+* `noSelectionPayload`: defines what text is going to be send if no text is selected. Default value is ["{currentline}"].
+* `oneLineSelectionPayload`: defines text sent to the terminal when selected text is only one line. E.g. ["{selection}"] would send one line with the selected text. ["a", "b", "c"] would send three lines with one character per line and not including the selected text at all.
+* `multiLineSelectionPayload`: defines text sent to the terminal when selected text is more than one line. E.g. [":paste", "{selection}", "\u0004"] would send `:paste` then selected text and then `Ctrl+D` key press. 
+* `linePattern`: defines transformation for each line of selected text. Selected text can be decorated on line basis if necessary.
+* `payloadFormat`: defines what is the format sent to terminal. (values are `line`, `chunk` or `all`). Chunk is block of text defined by length (default setting is 1100 characters). This should circumvent limitation of selected text size sent to terminal on some the environments (e.g. Windows 7, etc...)
+* `delayMode`: Defines delay period between sending of lines/chunks to terminal. Values are `delayed` or `nodelay`. Delay setting is preconfigured to 1500ms. Default value is "nodelay". Connecting to some apps (e.g. sparkshell) via terminal over network requires to have delays sometimes.
 
-* `oneLineSelectionPayload`: defines text sent to the terminal when selected text is only one single line. E.g. ["{selection}"] would send one line with the selected text. ["a", "b", "c"] would send three lines with one character per line and not including the selected text at all.
-* `multiLineSelectionPayload`: defines text sent to the terminal when selected text is more than one line. E.g. [":paste", "{selection}", "\u0004"] would send `:paste` then selected text (as single line or per lines based on `shouldSendSelectionPerLines` value) and then `Ctrl+D` key press. 
-* `shouldSendSelectionPerLines`: will send the selected text (i.e. `{selection}`) line by line. This should circumvent limitation of selected text size sent to terminal on some the environments (e.g. Windows 7, etc...)
-
+Replacement tags to be used in patterns are:
+* `{currentline}` is text on current line.
+* `{selection}` is all the selected text.
+* `{line}` is the text in line. For use in the `linePattern` only.
 
 ## Known Issues
 
@@ -85,6 +117,8 @@ There is `activeTerminal` API already implemented in the `--proposed-api` featur
 
 ## Release Notes
 
+### 0.2.0
+Added delay, chunk payload format, line processing, noselection pattern.
 
 ### 0.1.0
 
