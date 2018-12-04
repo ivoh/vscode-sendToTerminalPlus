@@ -22,32 +22,29 @@ import * as vscode from 'vscode';
         console.log(`Sending '${lines.length}' lines to terminal with delay '${delay}', addNewLines:'${addNewLines}'.`);
         let send = getSendTextToActiveTerminalDelegate();
 
-        function sendOneByOneLineWithDelay() {
+        function sendOneByOneLineWithDelay(currentDelay: number, nextDelay: number) {
             let lu = lines.shift();
             let isLastItem = lines.length === 0;
             if (lu === undefined) {
                 return;
             }
             let l = lu;
-            setTimeout(function() {
+
+            if (currentDelay <= 0) {
+                // immediately
                 send(l, addNewLines || isLastItem);
-                sendOneByOneLineWithDelay();
-            }, delay);
-        }
-        
-        if (delay > 0) {
-            // send with delay
-            sendOneByOneLineWithDelay();
-        } else {
-            // send immmediately
-            while (lines.length > 0) {
-                let lu = lines.shift();
-                let isLastItem = lines.length === 0;
-                if (lu === undefined) {
-                    return;
-                }
-                send(lu, addNewLines || isLastItem);
+                sendOneByOneLineWithDelay(nextDelay, nextDelay);
+            } else {
+                // delayed
+                console.log(`"Sleep for '${currentDelay}' ms`);
+                setTimeout(function() {
+                    send(l, addNewLines || isLastItem);
+                    sendOneByOneLineWithDelay(nextDelay, nextDelay);
+                }, currentDelay);
             }
         }
+        
+        // first line immediately, next one with predefined delay
+        sendOneByOneLineWithDelay(0, delay);
     }
 
