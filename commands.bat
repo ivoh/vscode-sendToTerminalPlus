@@ -16,3 +16,7 @@ vsce publish minor
 
 REM patch
 bsce publish patch
+
+REM install class-transformer
+npm install class-transformer --save
+

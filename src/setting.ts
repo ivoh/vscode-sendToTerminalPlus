@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import {selectionPatternTag, currentLinePatternTag, linePatternTag, defaultOption, undefinedOption, DelayMode} from "./constants";
+import {plainToClass} from "class-transformer";
 
 export class LanguageSetting {
     langId: string;
@@ -67,7 +68,7 @@ function getLanguageSettings() : LanguageSetting[] {
         defaultPayloadFormat = extConfiguration.get<string>("defaultPayloadFormat", defaultPayloadFormat);
         console.log(`Found common setting: messageDelay='${messageDelay}', defaultDelayMode='${defaultDelayMode}', chunkSize='${chunkSize}', defaultPayloadFormat='${defaultPayloadFormat}'.`);
 
-        languageSettings = extConfiguration.get<LanguageSetting[]>("languages", languageSettings);
+        languageSettings = extConfiguration.get<LanguageSetting[]>("languages", languageSettings).map(l => plainToClass(LanguageSetting, l));
         for(let s of languageSettings) {
             s.setDefaultValues(defaultDelayMode, defaultPayloadFormat, messageDelay, chunkSize);
         }

@@ -51,7 +51,7 @@
                     "sendtoterminalplus.messageDelay": {
                         "type": "integer",
                         "description": "Delay between sending messages to terminal in ms (recommended 0 - none/local, e.g. 1500 - 1.5s/over the network).",
-                        "default": 1500 
+                        "default": 1500
                     },
                     "sendtoterminalplus.defaultDelayMode": {
                         "type": "string",
@@ -60,12 +60,12 @@
                             "nodelay"
                         ],
                         "description": "How should be the messages sent by default.",
-                        "default": "nodelay" 
+                        "default": "nodelay"
                     },
                     "sendtoterminalplus.chunkSize": {
                         "type": "integer",
                         "description": "Max size of chunk that can be send together.",
-                        "default": 1100 
+                        "default": 1100
                     },
                     "sendtoterminalplus.defaultPayloadFormat": {
                         "type": "string",
@@ -75,7 +75,7 @@
                             "all"
                         ],
                         "description": "How should be the selected text broken for sending to terminal.",
-                        "default": "all" 
+                        "default": "all"
                     },
                     "sendtoterminalplus.languages": {
                         "type": "array",
@@ -96,7 +96,7 @@
                                     ],
                                     "description": "How should be the messages sent."
                                 },
-                                "payloadFormat" : {
+                                "payloadFormat": {
                                     "type": "string",
                                     "enum": [
                                         "line",
@@ -106,10 +106,9 @@
                                     ],
                                     "description": "How should be the selected text broken for sending to terminal."
                                 },
-                                "linePattern" : {
+                                "linePattern": {
                                     "type": "string",
                                     "description": "Decorate line with additional content. Replacement tag is {line}"
-                                    
                                 },
                                 "noSelectionPayload": {
                                     "type": "array",
@@ -137,9 +136,9 @@
                         "default": [
                             {
                                 "langId": "default",
-                                "delayMode" : "default",
+                                "delayMode": "default",
                                 "payloadFormat": "default",
-                                "linePattern" : "{line}",
+                                "linePattern": "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
@@ -152,9 +151,9 @@
                             },
                             {
                                 "langId": "scala",
-                                "delayMode" : "default",
+                                "delayMode": "default",
                                 "payloadFormat": "chunk",
-                                "linePattern" : "{line}",
+                                "linePattern": "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
@@ -169,9 +168,9 @@
                             },
                             {
                                 "langId": "python",
-                                "delayMode" : "default",
+                                "delayMode": "default",
                                 "payloadFormat": "chunk",
-                                "linePattern" : "{line}",
+                                "linePattern": "{line}",
                                 "noSelectionPayload": [
                                     "{currentline}"
                                 ],
@@ -203,5 +202,8 @@
         "@types/node": "^8.10.25",
         "@types/mocha": "^2.2.42"
     },
-    "license": "LICENSE"
+    "license": "LICENSE",
+    "dependencies": {
+        "class-transformer": "^0.2.0"
+    }
 }
