@@ -10,7 +10,7 @@ import * as vscode from 'vscode';
             activeTermOrNull = vscode.window.createTerminal("Terminal+");
         }       
         let activeTerm = activeTermOrNull;
-        activeTerm.show();
+        activeTerm.show(true);
 
         return ((text: string, addNewLine: boolean) => {
             console.log(`Terminal|${text}`);
