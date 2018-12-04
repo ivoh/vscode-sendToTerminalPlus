@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 
         return ((text: string, addNewLine: boolean) => {
             console.log(`Terminal|${text}`);
-            activeTerm.sendText(text);
+            activeTerm.sendText(text, addNewLine);
         });
     }
 
