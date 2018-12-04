@@ -94,7 +94,7 @@
                                         "nodelay",
                                         "default"
                                     ],
-                                    "description": "How should be the messages sent.",
+                                    "description": "How should be the messages sent."
                                 },
                                 "payloadFormat" : {
                                     "type": "string",

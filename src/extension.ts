@@ -28,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
         // pick correct language
         let langSettings = getLangSettings(textEditor.document.languageId);
         console.log(`Using language setting for '${langSettings.langId}'='${langSettings}'`);
+        console.log(`Values: '${langSettings.toString()}'`);
 
         // take text selection
         let selection = getSelectionText(textEditor);

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {selectionPatternTag, currentLinePatternTag, linePatternTag, defaultOption, undefinedOption, DelayMode, PayloadFormat} from "./constants";
+import {selectionPatternTag, currentLinePatternTag, linePatternTag, defaultOption, undefinedOption, DelayMode} from "./constants";
 
 export class LanguageSetting {
     langId: string;
@@ -42,6 +42,7 @@ export class LanguageSetting {
     }
 
 }
+
 
 
 let defaultLanguageSettings: LanguageSetting = new LanguageSetting();

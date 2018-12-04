@@ -20,7 +20,6 @@ export class UserSelection {
         if (text.length > 0 && text[text.length-1].length === 0) {
             text.splice(text.length-1, 1);
         }
-
     }
 
     isEmpty() {
@@ -39,7 +38,7 @@ export function getSelectionText(textEditor: vscode.TextEditor) : UserSelection 
     }
     
     // current line under cursor
-    const currentline = textEditor.document.lineAt(selection.start.line).text
+    const currentline = textEditor.document.lineAt(selection.start.line).text;
 
     if (selection.isEmpty) {
         console.log(`No selected text, therefore passing only current line.`);

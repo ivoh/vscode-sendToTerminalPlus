@@ -108,22 +108,22 @@ import {selectionPatternTag, linePatternTag, currentLinePatternTag, PayloadForma
         return result;
     }
 
-    function breakDownStrinToSlices(line: string, sliceLength: number) {
+    function breakDownStringToSlices(line: string, sliceLength: number) {
         let start = 0;
         let result : string[] = [];
         while (start < line.length) {
-            result.push(line.substr(start, start + sliceLength))
+            result.push(line.substr(start, start + sliceLength));
             start += sliceLength;
         } 
 
         return result;
     }
 
-    export function brakDownToFormat(lines: string[], payloadFormat: string, chunkSize: number) : string[] {
+    export function breakDownToFormat(lines: string[], payloadFormat: string, chunkSize: number) : string[] {
         switch (payloadFormat) {
             case PayloadFormat.Chunk:
                 let asOneLine = lines.join("\n");
-                let asArray = breakDownStrinToSlices(asOneLine, chunkSize);
+                let asArray = breakDownStringToSlices(asOneLine, chunkSize);
                 return asArray;            
                 break;
             case PayloadFormat.Line:
