@@ -113,7 +113,7 @@ Replacement tags to be used in patterns are:
 ## Release Notes
 
 ### 1.0.0
-* Using `activeTerminal` API to send to currently active terminal. Introduced in [October 2018 (version 1.29)](https://code.visualstudio.com/updates/v1_29#_extension-authoring) VSCode update.
+* Using `activeTerminal` API to send to currently active terminal. Introduced in [October 2018 (version 1.29)](https://code.visualstudio.com/updates/v1_29#_active-terminal-apis) VSCode update.
 
 ### 0.2.0
 * Added delay, chunk payload format, line processing, noselection pattern.
